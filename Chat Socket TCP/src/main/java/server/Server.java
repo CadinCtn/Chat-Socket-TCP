@@ -18,7 +18,7 @@ public class Server {
                 Scanner scanner = new Scanner(System.in);
                 while (true) {
                     String serverMessage = scanner.nextLine();
-                    broadcast("[Server]: " + serverMessage, null);
+                    broadcast("\n[Server]: " + serverMessage, null);
                 }
             }).start();
 
@@ -76,7 +76,7 @@ public class Server {
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    System.out.println("[" + username + "]: " + inputLine);
+                    System.out.println("\n[" + username + "]: " + inputLine);
                     broadcast("[" + username + "]: " + inputLine, this);
                 }
 
