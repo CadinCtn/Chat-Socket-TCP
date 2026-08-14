@@ -1,28 +1,24 @@
-package criptografia.cesar;
+package criptografia;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class CesarCrypt {
+public class CesarCrypt implements Crypt{
 
     private final List<Character> rodaPadrao;
     private final List<Character> rodaEncriptada;
-    private final int chave;
 
     public CesarCrypt(int chave) {
         this.rodaPadrao = new ArrayList<>();
         this.rodaEncriptada = new ArrayList<>();
 
-        this.chave = chave;
-
         for(char c = 'A'; c <= 'Z'; c++){
             rodaPadrao.add(c);
             char letraCriptografada = (char) (c + chave);
 
-            if(chave > 26) letraCriptografada = (char) (letraCriptografada % 26);
+            if(chave > 26) letraCriptografada = (char) (((rodaPadrao.indexOf(c)+1) % 26)+65);
             if(letraCriptografada > 'Z') letraCriptografada-=26;
 
             rodaEncriptada.add(letraCriptografada);
@@ -51,18 +47,19 @@ public class CesarCrypt {
         return mensagemCriptografada.toString();
     }
 
-
+    @Override
     public String encrypt(String message){
         return criptografiaDeCesar(message, true);
     }
 
+    @Override
     public String decrypt(String message){
         return criptografiaDeCesar(message, false);
     }
 
 
     public static void main(String[] args) {
-        CesarCrypt cesarCrypt = new CesarCrypt(4);
+        CesarCrypt cesarCrypt = new CesarCrypt(50);
 
         String message = Pattern
                 .compile("\\p{InCombiningDiacriticalMarks}+")
