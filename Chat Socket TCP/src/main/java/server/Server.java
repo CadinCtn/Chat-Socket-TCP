@@ -48,7 +48,7 @@ public class Server {
 
     // Internal class to handle client connections
     private static class ClientHandler implements Runnable {
-        private Socket clientSocket;
+        private final Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
         private String username;
