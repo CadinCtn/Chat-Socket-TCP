@@ -27,15 +27,26 @@ public abstract class AbstractCrypt implements Crypt {
 
     @Override
     public String encrypt(String message){
-        return criptografar(message, true);
+        return applyCrypt(message, true);
+    }
+
+    public String applyCrypt(String message, boolean encrypt){
+        StringBuilder mensagemCriptografada = new StringBuilder();
+
+        for(String palavra : message.split(" ")){
+            for(char letra : palavra.toCharArray()){
+                mensagemCriptografada.append(
+                        getLetraCriptografada(letra, encrypt)
+                );
+            }
+            mensagemCriptografada.append(" ");
+        }
+        return mensagemCriptografada.toString();
     }
 
     @Override
     public String decrypt(String message){
-        return criptografar(message, false);
+        return applyCrypt(message, false);
     }
 
-    protected String criptografar(String message, boolean encrypt){
-        return message;
-    }
 }

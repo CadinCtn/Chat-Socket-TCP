@@ -19,20 +19,7 @@ public class CesarCrypt extends AbstractCrypt{
         }
     }
 
-    @Override
-    public String criptografar(String message, boolean encrypt){
-        StringBuilder mensagemCriptografada = new StringBuilder();
 
-        for(String palavra : message.split(" ")){
-            for(char letra : palavra.toCharArray()){
-                mensagemCriptografada.append(
-                        getLetraCriptografada(letra, encrypt)
-                );
-            }
-            mensagemCriptografada.append(" ");
-        }
-        return mensagemCriptografada.toString();
-    }
 
 
 

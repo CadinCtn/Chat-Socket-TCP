@@ -11,28 +11,12 @@ public class MonofabeticaCrypt extends AbstractCrypt{
         }
     }
 
-    @Override
-    public String criptografar(String message, boolean encrypt) {
-        return "";
-    }
 
-    @Override
-    public String encrypt(String message) {
-        StringBuilder mensagemCriptografada = new StringBuilder();
-        message.replace('Ç', 'C');
+    public static void main(String[] args) {
+        Crypt crypt = new MonofabeticaCrypt("CBADEFGHIJKLMNOPQRSTUVWXYZ");
 
-        for(String palavra : message.split(" ")){
-            for(char letra : palavra.toCharArray()){
-                mensagemCriptografada.append(getLetraCriptografada(letra, true));
-            }
-            mensagemCriptografada.append(" ");
-        }
-
-        return mensagemCriptografada.toString();
-    }
-
-    @Override
-    public String decrypt(String message) {
-        return "";
+        String message = "testando criptogracria monofabetica".toUpperCase();
+        System.out.println(crypt.encrypt(message));
+        System.out.println(crypt.decrypt(crypt.encrypt(message)));
     }
 }
