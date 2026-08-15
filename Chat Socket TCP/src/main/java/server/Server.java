@@ -68,11 +68,11 @@ public class Server {
         public void run() {
             try {
                 // Get the username from the client
-                out.println("Enter your username:");
+                out.println("Insira seu nome de usuário:");
                 username = in.readLine();
-                System.out.println("User " + username + " connected.");
-                out.println("Welcome to the chat, " + username + "!");
-                out.println("Type Your Message");
+                System.out.println("Usário " + username + " conectado.");
+                out.println("Bem-vindo ao chat, " + username + "!");
+                out.println("Digite sua mensagem");
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
@@ -82,7 +82,7 @@ public class Server {
 
                 // Remove the client handler from the list
                 clients.remove(this);
-                System.out.println("User " + username + " disconnected.");
+                System.out.println("Usuário " + username + " desconectado.");
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

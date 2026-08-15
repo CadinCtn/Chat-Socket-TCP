@@ -8,7 +8,7 @@ public class CryptSelect {
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Escolha o modo de transmissão:");
+        System.out.println("Escolha o modo de transmissão (número):");
         System.out.println("1 - Sem criptografia");
         System.out.println("2 - Cifra de César");
         System.out.println("3 - Cifra monoalfabética");
@@ -21,13 +21,21 @@ public class CryptSelect {
             System.out.print("Modo: ");
         }
         int selectedCrypt = scanner.nextInt();
-
+serverResponse
         switch(selectedCrypt) {
             case 1:
-                return null;
+                return new AbstractCrypt();
             case 2:
-                
-                return new 
+                System.out.println("Cifra de César selecionada.");
+                System.out.print("Insira a chave (número inteiro): ");
+                System.out.print("Chave: ");
+                while(!scanner.hasNextInt()) {
+                    scanner.next();
+                    System.out.println("Seleção inválida, insira uma opção válida.");
+                    System.out.print("Chave: ");
+                }
+                int Key = scanner.nextInt();
+                return new CesarCrypt(Key);
             case 3:
                 break;
             case 4:
@@ -35,7 +43,7 @@ public class CryptSelect {
             case 5:
                 break;
             default:
-                return null;
+                return new AbstractCrypt();
 
         }
 
