@@ -1,7 +1,10 @@
-package criptografia;
+package criptografia.algoritmos;
 
 
-public class MonofabeticaCrypt extends AbstractCrypt{
+import criptografia.AbstractCrypt;
+import criptografia.Crypt;
+
+public class MonofabeticaCrypt extends AbstractCrypt {
 
 
     public MonofabeticaCrypt(String chave) {

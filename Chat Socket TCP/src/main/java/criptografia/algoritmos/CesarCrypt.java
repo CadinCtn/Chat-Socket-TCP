@@ -1,9 +1,12 @@
-package criptografia;
+package criptografia.algoritmos;
+
+import criptografia.AbstractCrypt;
+import criptografia.Crypt;
 
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
-public class CesarCrypt extends AbstractCrypt{
+public class CesarCrypt extends AbstractCrypt {
 
     public CesarCrypt(int chave) {
         super();
