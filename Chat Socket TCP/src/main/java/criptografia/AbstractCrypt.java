@@ -20,7 +20,7 @@ public abstract class AbstractCrypt implements Crypt {
     public char getLetraCriptografada(char letra, boolean encrypt){
         if(encrypt) {
             return rodaEncriptada.get(rodaPadrao.indexOf(letra));
-        } else {
+        } else { // decrypt
             return rodaPadrao.get(rodaEncriptada.indexOf(letra));
         }
     }
