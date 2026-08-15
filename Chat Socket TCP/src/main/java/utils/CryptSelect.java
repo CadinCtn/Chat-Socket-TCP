@@ -38,11 +38,11 @@ public class CryptSelect {
                 int Key = scanner.nextInt();
                 return new CesarCrypt(Key);
             case 3:
-                return new MonofabeticaCrypt("");
+                return null;
             case 4:
-                return new PlayfairCrypt();
+                return null;
             case 5:
-                return new VigenereCrypt();
+                return null;
             default:
                 return new NoCrypt();
         }
