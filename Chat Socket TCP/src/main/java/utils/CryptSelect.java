@@ -1,5 +1,8 @@
 package utils;
 
+import criptografia.Crypt;
+import criptografia.algoritmos.*;
+
 import java.util.Scanner;
 
 public class CryptSelect {
@@ -21,10 +24,8 @@ public class CryptSelect {
             System.out.print("Modo: ");
         }
         int selectedCrypt = scanner.nextInt();
-serverResponse
+
         switch(selectedCrypt) {
-            case 1:
-                return new AbstractCrypt();
             case 2:
                 System.out.println("Cifra de César selecionada.");
                 System.out.print("Insira a chave (número inteiro): ");
@@ -37,14 +38,13 @@ serverResponse
                 int Key = scanner.nextInt();
                 return new CesarCrypt(Key);
             case 3:
-                break;
+                return new MonofabeticaCrypt("");
             case 4:
-                break;
+                return new PlayfairCrypt();
             case 5:
-                break;
+                return new VigenereCrypt();
             default:
-                return new AbstractCrypt();
-
+                return new NoCrypt();
         }
 
     }

@@ -2,9 +2,9 @@ package criptografia.algoritmos;
 
 import criptografia.AbstractCrypt;
 
-public class Vigenere extends AbstractCrypt {
+public class VigenereCrypt extends AbstractCrypt {
 
-    public Vigenere(){
+    public VigenereCrypt(){
         super();
     }
 
