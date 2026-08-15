@@ -1,18 +1,12 @@
 package criptografia;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
-public class CesarCrypt implements Crypt{
-
-    private final List<Character> rodaPadrao;
-    private final List<Character> rodaEncriptada;
+public class CesarCrypt extends AbstractCrypt{
 
     public CesarCrypt(int chave) {
-        this.rodaPadrao = new ArrayList<>();
-        this.rodaEncriptada = new ArrayList<>();
+        super();
 
         for(char c = 'A'; c <= 'Z'; c++){
             rodaPadrao.add(c);
@@ -25,15 +19,8 @@ public class CesarCrypt implements Crypt{
         }
     }
 
-    private char getLetraCriptografada(char letra, boolean encrypt){
-        if(encrypt) {
-            return rodaEncriptada.get(rodaPadrao.indexOf(letra));
-        } else {
-            return rodaPadrao.get(rodaEncriptada.indexOf(letra));
-        }
-    }
-
-    private String criptografiaDeCesar(String message, boolean encrypt){
+    @Override
+    public String criptografar(String message, boolean encrypt){
         StringBuilder mensagemCriptografada = new StringBuilder();
 
         for(String palavra : message.split(" ")){
@@ -47,19 +34,10 @@ public class CesarCrypt implements Crypt{
         return mensagemCriptografada.toString();
     }
 
-    @Override
-    public String encrypt(String message){
-        return criptografiaDeCesar(message, true);
-    }
-
-    @Override
-    public String decrypt(String message){
-        return criptografiaDeCesar(message, false);
-    }
 
 
     public static void main(String[] args) {
-        CesarCrypt cesarCrypt = new CesarCrypt(50);
+        Crypt cesarCrypt = new CesarCrypt(50);
 
         String message = Pattern
                 .compile("\\p{InCombiningDiacriticalMarks}+")
