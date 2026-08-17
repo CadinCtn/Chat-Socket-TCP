@@ -38,7 +38,16 @@ public class CryptSelect {
                 int Key = scanner.nextInt();
                 return new CesarCrypt(Key);
             case 3:
-                return null;
+                System.out.println("Cifra monoalfabética selecionada.");
+                System.out.println("Insira a chave (sequência de caracteres): ");
+                System.out.println("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                while(!scanner.hasNextLine()) {
+                    scanner.next();
+                    System.out.println("Chave vazia, insira uma chave.");
+                    System.out.print("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                }
+                String Key = scanner.nextLine();
+                return new MonoalphabeticCrypt(Key);
             case 4:
                 return null;
             case 5:
