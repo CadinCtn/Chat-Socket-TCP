@@ -17,7 +17,7 @@ public abstract class AbstractCrypt implements Crypt {
         }
     }
 
-    public char getLetraCriptografada(char letra, boolean encrypt){
+    protected char getLetraCriptografada(char letra, boolean encrypt){
         if(encrypt) {
             return rodaEncriptada.get(rodaPadrao.indexOf(letra));
         } else { // decrypt
@@ -30,7 +30,7 @@ public abstract class AbstractCrypt implements Crypt {
         return applyCrypt(message, true);
     }
 
-    public String applyCrypt(String message, boolean encrypt){
+    protected String applyCrypt(String message, boolean encrypt){
         StringBuilder mensagemCriptografada = new StringBuilder();
 
         for(String palavra : message.split(" ")){
