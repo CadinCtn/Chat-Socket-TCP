@@ -46,8 +46,8 @@ public class CryptSelect {
                     System.out.println("Chave vazia, insira uma chave.");
                     System.out.print("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
                 }
-                String Key = scanner.nextLine();
-                return new MonoalphabeticCrypt(Key);
+                String Key2 = scanner.nextLine();
+                return new MonoalphabeticCrypt(Key2);
             case 4:
                 return null;
             case 5:
