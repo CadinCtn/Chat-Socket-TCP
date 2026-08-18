@@ -12,13 +12,13 @@ public class CesarCrypt extends AbstractCrypt {
         super();
 
         for(char c = 'A'; c <= 'Z'; c++){
-            rodaPadrao.add(c);
+            rodaAlfabetoPadrao.add(c);
             char letraCriptografada = (char) (c + chave);
 
-            if(chave > 26) letraCriptografada = (char) (((rodaPadrao.indexOf(c)+1) % 26)+65);
+            if(chave > 26) letraCriptografada = (char) (((rodaAlfabetoPadrao.indexOf(c)+1) % 26)+65);
             if(letraCriptografada > 'Z') letraCriptografada-=26;
 
-            rodaEncriptada.add(letraCriptografada);
+            rodaAlfabetoEncriptada.add(letraCriptografada);
         }
     }
 

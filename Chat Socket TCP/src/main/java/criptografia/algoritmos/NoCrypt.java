@@ -7,7 +7,7 @@ public class NoCrypt extends AbstractCrypt {
 
     public NoCrypt() {
         super();
-        rodaEncriptada.addAll(rodaPadrao);
+        rodaAlfabetoEncriptada.addAll(rodaAlfabetoPadrao);
     }
 
 

@@ -10,7 +10,7 @@ public class MonoalphabeticCrypt extends AbstractCrypt {
     public MonoalphabeticCrypt(String chave) {
         super();
         for(char letra : chave.toCharArray()){
-            rodaEncriptada.add(letra);
+            rodaAlfabetoEncriptada.add(letra);
         }
     }
 

@@ -18,9 +18,9 @@ public class VigenereCrypt extends AbstractCrypt {
         int x = letra-65;
         int y = cifra.toCharArray()[indexCifra]-65;
         if(encrypt){
-            return rodaPadrao.get(((x+y)%26));
+            return rodaAlfabetoPadrao.get(((x+y)%26));
         } else {
-            return rodaPadrao.get(((x-y+26)%26));
+            return rodaAlfabetoPadrao.get(((x-y+26)%26));
         }
     }
 

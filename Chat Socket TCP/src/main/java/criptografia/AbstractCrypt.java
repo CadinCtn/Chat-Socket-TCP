@@ -5,23 +5,23 @@ import java.util.List;
 
 public abstract class AbstractCrypt implements Crypt {
 
-    protected final List<Character> rodaPadrao;
-    protected final List<Character> rodaEncriptada;
+    protected final List<Character> rodaAlfabetoPadrao;
+    protected final List<Character> rodaAlfabetoEncriptada;
 
     public AbstractCrypt() {
-        this.rodaPadrao = new ArrayList<>();
-        this.rodaEncriptada = new ArrayList<>();
+        this.rodaAlfabetoPadrao = new ArrayList<>();
+        this.rodaAlfabetoEncriptada = new ArrayList<>();
 
         for(char c = 'A'; c <= 'Z'; c++){
-            rodaPadrao.add(c);
+            rodaAlfabetoPadrao.add(c);
         }
     }
 
     protected char getLetraCriptografada(char letra, boolean encrypt){
         if(encrypt) {
-            return rodaEncriptada.get(rodaPadrao.indexOf(letra));
+            return rodaAlfabetoEncriptada.get(rodaAlfabetoPadrao.indexOf(letra));
         } else { // decrypt
-            return rodaPadrao.get(rodaEncriptada.indexOf(letra));
+            return rodaAlfabetoPadrao.get(rodaAlfabetoEncriptada.indexOf(letra));
         }
     }
 

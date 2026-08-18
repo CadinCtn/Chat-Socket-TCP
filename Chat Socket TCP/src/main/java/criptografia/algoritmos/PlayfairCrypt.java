@@ -13,8 +13,10 @@ public class PlayfairCrypt extends AbstractCrypt {
         super();
         this.matrizPlayfair = new char[5][5];
 
-        // Substitui J por I
-        rodaPadrao.remove('J'-65);
+        //Remove J do alfabeto
+        rodaAlfabetoPadrao.remove('J'-65);
+
+        // Substitui J por I na cifra
         cifra = cifra.replace('J', 'I');
 
         // Monta cifra retirando caracteres duplicados
@@ -22,12 +24,12 @@ public class PlayfairCrypt extends AbstractCrypt {
         for(char letra : cifra.toCharArray()){
             if(!crifraSemDuplicatas.toString().contains(letra+"")){
                 crifraSemDuplicatas.append(letra);
-                rodaPadrao.remove(rodaPadrao.indexOf(letra));
+                rodaAlfabetoPadrao.remove(rodaAlfabetoPadrao.indexOf(letra));
             }
         }
 
         // Inclui o restante do alfabeto na cifra
-        rodaPadrao.forEach(crifraSemDuplicatas::append);
+        rodaAlfabetoPadrao.forEach(crifraSemDuplicatas::append);
 
         // Monta matriz
         int indexCifra = 0;
@@ -44,17 +46,17 @@ public class PlayfairCrypt extends AbstractCrypt {
         StringBuilder mensagemDigrafada = new StringBuilder();
 
         for(char letra : message.toCharArray()){
-            rodaEncriptada.add(letra);
+            rodaAlfabetoEncriptada.add(letra);
         }
 
         // Cria digrafos
-        for(int i = 0; i < rodaEncriptada.size();){
-            mensagemDigrafada.append(rodaEncriptada.get(i));
+        for(int i = 0; i < rodaAlfabetoEncriptada.size();){
+            mensagemDigrafada.append(rodaAlfabetoEncriptada.get(i));
 
-            if(i+1 < rodaEncriptada.size() &&
-                    rodaEncriptada.get(i).equals(rodaEncriptada.get(i+1))){
+            if(i+1 < rodaAlfabetoEncriptada.size() &&
+                    rodaAlfabetoEncriptada.get(i).equals(rodaAlfabetoEncriptada.get(i+1))){
                 mensagemDigrafada.append('X');
-            } else if(i+1 == rodaEncriptada.size() &&
+            } else if(i+1 == rodaAlfabetoEncriptada.size() &&
                     mensagemDigrafada.length() % 2 != 0){
                 mensagemDigrafada.append('X');
             }
