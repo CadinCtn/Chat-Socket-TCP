@@ -2,6 +2,7 @@ package utils;
 
 import criptografia.Crypt;
 import criptografia.algoritmos.*;
+import utils.Utils;
 
 import java.util.Scanner;
 
@@ -18,48 +19,53 @@ public class CryptSelect {
         System.out.println("4 - Cifra Playfair");
         System.out.println("5 - Cifra de Vigenère");
         System.out.print("Modo: ");
-        while(!scanner.hasNextInt()) {
+
+        while (!scanner.hasNextInt()) {
             scanner.next();
             System.out.println("Seleção inválida, insira uma opção válida.");
             System.out.print("Modo: ");
         }
+
         int selectedCrypt = scanner.nextInt();
 
-        switch(selectedCrypt) {
+        switch (selectedCrypt) {
+
             case 2:
                 System.out.println("Cifra de César selecionada.");
-                System.out.print("Insira a chave (número inteiro): ");
-                System.out.print("Chave: ");
-                while(!scanner.hasNextInt()) {
+                System.out.print("Chave (número inteiro): ");
+
+                while (!scanner.hasNextInt()) {
                     scanner.next();
                     System.out.println("Seleção inválida, insira uma opção válida.");
                     System.out.print("Chave: ");
                 }
-                int Key = scanner.nextInt();
-                return new CesarCrypt(Key);
+
+                int key = scanner.nextInt();
+                return new CesarCrypt(key);
+
             case 3:
                 System.out.println("Cifra monoalfabética selecionada.");
-                System.out.println("Insira a chave (sequência de caracteres): ");
+                System.out.println("Insira a chave (sequência de 26 caracteres): ");
                 System.out.println("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-                while(!scanner.hasNextLine()) {
-                    scanner.next();
-                    System.out.println("Chave vazia, insira uma chave.");
-                    System.out.print("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-                }
-                String Key2 = scanner.nextLine();
-                return new MonoalphabeticCrypt(Key2);
+
+                String key2 = scanner.next();
+
+                return new MonoalphabeticCrypt(Utils.cleanString(key2));
+
             case 4:
+                System.out.println("Cifra Playfair selecionada.");
                 return null;
+
             case 5:
+                System.out.println("Cifra de Vigenère selecionada.");
                 return null;
+
             default:
                 return new NoCrypt();
         }
-
     }
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
         SelectCryptography();
     }
-
 }
