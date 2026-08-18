@@ -4,10 +4,10 @@ package criptografia.algoritmos;
 import criptografia.AbstractCrypt;
 import criptografia.Crypt;
 
-public class MonofabeticaCrypt extends AbstractCrypt {
+public class MonoalphabeticCrypt extends AbstractCrypt {
 
 
-    public MonofabeticaCrypt(String chave) {
+    public MonoalphabeticCrypt(String chave) {
         super();
         for(char letra : chave.toCharArray()){
             rodaEncriptada.add(letra);
@@ -16,7 +16,7 @@ public class MonofabeticaCrypt extends AbstractCrypt {
 
 
     public static void main(String[] args) {
-        Crypt crypt = new MonofabeticaCrypt("CBADEFGHIJKLMNOPQRSTUVWXYZ");
+        Crypt crypt = new MonoalphabeticCrypt("CBADEFGHIJKLMNOPQRSTUVWXYZ");
 
         String message = "testando criptogracria monofabetica".toUpperCase();
         System.out.println(crypt.encrypt(message));
