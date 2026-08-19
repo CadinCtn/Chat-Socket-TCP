@@ -18,6 +18,8 @@ public abstract class AbstractCrypt implements Crypt {
     }
 
     protected char getLetraCriptografada(char letra, boolean encrypt){
+        // Não codifica se não for uma letra
+        if(letra < 65 || letra > 90) return letra;
         if(encrypt) {
             return rodaAlfabetoEncriptada.get(rodaAlfabetoPadrao.indexOf(letra));
         } else { // decrypt

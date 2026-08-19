@@ -15,6 +15,8 @@ public class VigenereCrypt extends AbstractCrypt {
 
     @Override
     protected char getLetraCriptografada(char letra, boolean encrypt){
+        if(letra < 65 || letra > 90) return letra;
+
         int x = letra-65;
         int y = cifra.toCharArray()[indexCifra]-65;
         if(encrypt){
@@ -45,7 +47,7 @@ public class VigenereCrypt extends AbstractCrypt {
 
     public static void main(String[] args) {
         Crypt crypt = new VigenereCrypt("FOGO");
-        String message = "ATACARBASENORTE".toUpperCase();
+        String message = "ATACARBASENORTE10:45)".toUpperCase();
         String cryptedMessage = crypt.encrypt(message);
         System.out.println(cryptedMessage);
         System.out.println(crypt.decrypt(cryptedMessage));

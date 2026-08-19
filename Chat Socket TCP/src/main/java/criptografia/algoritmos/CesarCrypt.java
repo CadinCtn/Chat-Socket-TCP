@@ -33,7 +33,7 @@ public class CesarCrypt extends AbstractCrypt {
                 .compile("\\p{InCombiningDiacriticalMarks}+")
                 .matcher(
                         Normalizer
-                                .normalize("Agora fúcionou HAHA",
+                                .normalize("Agora fúcionou HAHA 10 funciona com números e pontos .... ",
                                             Normalizer.Form.NFD))
                 .replaceAll("");
 
