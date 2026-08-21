@@ -4,11 +4,19 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
+import criptografia.Crypt;
+import utils.*;
+
 public class Client {
     private static final String SERVER_ADDRESS = "10.164.20.105";
     private static final int SERVER_PORT = 12345;
 
     public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+
+        Crypt crypt = CryptSelect.SelectCryptography(scanner);
+
         try {
             Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
             System.out.println("Connected to the chat server!");
@@ -22,7 +30,7 @@ public class Client {
                 try {
                     String serverResponse;
                     while ((serverResponse = in.readLine()) != null) {
-                        System.out.println(serverResponse);
+                        System.out.println(crypt.decrypt(serverResponse));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -30,11 +38,10 @@ public class Client {
             }).start();
 
             // Read messages from the console and send to the server
-            Scanner scanner = new Scanner(System.in);
             String userInput;
             while (true) {
                 userInput = scanner.nextLine();
-                out.println(userInput);
+                out.println(crypt.encrypt(Utils.cleanString(userInput)));
             }
 
         } catch (IOException e) {
