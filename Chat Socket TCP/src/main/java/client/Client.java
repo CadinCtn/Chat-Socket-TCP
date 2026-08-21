@@ -8,7 +8,7 @@ import criptografia.Crypt;
 import utils.*;
 
 public class Client {
-    private static final String SERVER_ADDRESS = "10.164.20.105";
+    private static final String SERVER_ADDRESS = "26.232.54.30";
     private static final int SERVER_PORT = 12345;
 
     public static void main(String[] args) {
