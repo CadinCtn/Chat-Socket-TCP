@@ -129,7 +129,6 @@ public class PlayfairCrypt extends AbstractCrypt {
         } else {
             mensagemDigrafada = message;
         }
-        mensagemDigrafada = mensagemDigrafada.toUpperCase();
 
         StringBuilder mensagemCriptografada = new StringBuilder();
 
