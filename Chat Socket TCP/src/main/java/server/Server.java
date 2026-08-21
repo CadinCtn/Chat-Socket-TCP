@@ -1,101 +1,64 @@
 package server;
-
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Scanner;
 
 public class Server {
-
     private static final int PORT = 12345;
-
-    private static final CopyOnWriteArrayList<ClientHandler> clients =
-            new CopyOnWriteArrayList<>();
+    private static CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
 
     public static void main(String[] args) {
-
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-
+        try {
+            ServerSocket serverSocket = new ServerSocket(PORT);
             System.out.println("Server is running and waiting for connections...");
 
-            // Thread para mensagens enviadas pelo administrador
+            // Thread to handle server admin input
             new Thread(() -> {
-
                 Scanner scanner = new Scanner(System.in);
-
                 while (true) {
-
                     String serverMessage = scanner.nextLine();
-
-                    broadcast(
-                            "SYSTEM|[Server]: " + serverMessage,
-                            null
-                    );
+                    broadcast("\n[Server]: " + serverMessage, null);
                 }
-
             }).start();
 
-            // Aceita conexões
+            // Accept incoming connections
             while (true) {
-
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("New client connected: " + clientSocket);
 
-                System.out.println(
-                        "New client connected: " + clientSocket
-                );
-
-                ClientHandler clientHandler =
-                        new ClientHandler(clientSocket);
-
+                // Create a new client handler for the connected client
+                ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clients.add(clientHandler);
-
                 new Thread(clientHandler).start();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void broadcast(
-            String message,
-            ClientHandler sender
-    ) {
-
+    // Broadcast a message to all clients
+    public static void broadcast(String message, ClientHandler sender) {
         for (ClientHandler client : clients) {
-
             if (client != sender) {
                 client.sendMessage(message);
             }
         }
     }
 
+    // Internal class to handle client connections
     private static class ClientHandler implements Runnable {
-
         private final Socket clientSocket;
-
         private PrintWriter out;
         private BufferedReader in;
-
         private String username;
 
         public ClientHandler(Socket socket) {
-
             this.clientSocket = socket;
 
             try {
-
-                out = new PrintWriter(
-                        clientSocket.getOutputStream(),
-                        true
-                );
-
-                in = new BufferedReader(
-                        new InputStreamReader(
-                                clientSocket.getInputStream()
-                        )
-                );
-
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -103,80 +66,30 @@ public class Server {
 
         @Override
         public void run() {
-
             try {
-
-                // Solicita o nome de usuário
-                sendMessage(
-                        "SYSTEM|Insira seu nome de usuário:"
-                );
-
+                // Get the username from the client
+                out.println("Insira seu nome de usuário:");
                 username = in.readLine();
-
-                if (username == null || username.isBlank()) {
-                    username = "Usuário";
-                }
-
-                System.out.println(
-                        "Usuário " + username + " conectado."
-                );
-
-                sendMessage(
-                        "SYSTEM|Bem-vindo ao chat, " + username + "!"
-                );
-
-                sendMessage(
-                        "SYSTEM|Digite sua mensagem"
-                );
+                System.out.println("Usário " + username + " conectado.");
+                out.println("Bem-vindo ao chat, " + username + "!");
+                out.println("Digite sua mensagem");
 
                 String inputLine;
-
                 while ((inputLine = in.readLine()) != null) {
-
-                    System.out.println(
-                            "\n[" + username + "]: " + inputLine
-                    );
-
-                    /*
-                     * inputLine já está criptografada.
-                     *
-                     * O servidor não precisa conhecer a cifra.
-                     * Apenas adicionamos o identificador CHAT
-                     * e o nome do usuário.
-                     */
-                    broadcast(
-                            "CHAT|" + username + "|" + inputLine,
-                            this
-                    );
+                    System.out.println("\n[" + username + "]: " + inputLine);
+                    broadcast("[" + username + "]: " + inputLine, this);
                 }
 
-            } catch (IOException e) {
-
-                System.out.println(
-                        "Conexão encerrada para o usuário "
-                                + username
-                );
-
-            } finally {
-
+                // Remove the client handler from the list
                 clients.remove(this);
-
-                System.out.println(
-                        "Usuário " + username + " desconectado."
-                );
-
+                System.out.println("Usuário " + username + " desconectado.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
-
-                    if (in != null) {
-                        in.close();
-                    }
-
-                    if (out != null) {
-                        out.close();
-                    }
-
+                    in.close();
+                    out.close();
                     clientSocket.close();
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
