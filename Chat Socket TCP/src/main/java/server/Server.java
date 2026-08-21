@@ -18,7 +18,9 @@ public class Server {
                 Scanner scanner = new Scanner(System.in);
                 while (true) {
                     String serverMessage = scanner.nextLine();
-                    broadcast("\n[Server]: " + serverMessage, null);
+                    // Mensagens de admin são marcadas como SYS| para nunca serem
+                    // enviadas ao decodificador Playfair no cliente
+                    broadcast("SYS|[Server]: " + serverMessage, null);
                 }
             }).start();
 
@@ -67,22 +69,37 @@ public class Server {
         @Override
         public void run() {
             try {
-                // Get the username from the client
-                out.println("Insira seu nome de usuário:");
+                // Prompt de sistema: SYS| garante que o cliente nunca tente
+                // descriptografar esta linha
+                out.println("SYS|Insira seu nome de usuário:");
+
+                // O nome de usuário trafega em texto puro (não passou por crypt.encrypt
+                // no cliente), então é lido normalmente, sem qualquer decodificação
                 username = in.readLine();
-                System.out.println("Usário " + username + " conectado.");
-                out.println("Bem-vindo ao chat, " + username + "!");
-                out.println("Digite sua mensagem");
+                if (username == null || username.isBlank()) {
+                    username = "Anonimo";
+                }
+                // Remove '|' do username para não quebrar o parsing "MSG|usuario|texto"
+                username = username.replace("|", "").trim();
+
+                System.out.println("Usuário " + username + " conectado.");
+                out.println("SYS|Bem-vindo ao chat, " + username + "!");
+                out.println("SYS|Digite sua mensagem");
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
+                    // inputLine já chega cifrado (payload puro em Playfair) do cliente
                     System.out.println("\n[" + username + "]: " + inputLine);
-                    broadcast("[" + username + "]: " + inputLine, this);
+                    // Formato: MSG|remetente|textoCifrado
+                    // O prefixo e o remetente ficam FORA do texto cifrado,
+                    // evitando que caracteres como [ ] : espaço entrem no decrypt()
+                    broadcast("MSG|" + username + "|" + inputLine, this);
                 }
 
                 // Remove the client handler from the list
                 clients.remove(this);
                 System.out.println("Usuário " + username + " desconectado.");
+                broadcast("SYS|[Server]: " + username + " saiu do chat.", this);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
