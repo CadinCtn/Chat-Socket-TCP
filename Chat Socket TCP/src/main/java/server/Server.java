@@ -76,7 +76,7 @@ public class Server {
                 // O nome de usuário trafega em texto puro (não passou por crypt.encrypt
                 // no cliente), então é lido normalmente, sem qualquer decodificação
                 username = in.readLine();
-                if (username == null || username.isBlank()) {
+                if (username == null || username.isEmpty()) {
                     username = "Anonimo";
                 }
                 // Remove '|' do username para não quebrar o parsing "MSG|usuario|texto"

@@ -44,6 +44,7 @@ public class PlayfairCrypt extends AbstractCrypt {
     private String getMensagemDigrafada(String message){
         rodaAlfabetoEncriptada.clear();
         message = message.replace('J', 'I');
+        message = message.replace(" ", "");
         StringBuilder mensagemDigrafada = new StringBuilder();
 
         for(char letra : message.toCharArray()){
