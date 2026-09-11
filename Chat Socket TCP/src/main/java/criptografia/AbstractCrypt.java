@@ -1,5 +1,7 @@
 package criptografia;
 
+import utils.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public abstract class AbstractCrypt implements Crypt {
 
     @Override
     public String encrypt(String message){
-        return applyCrypt(message, true);
+        return applyCrypt(Utils.cleanString(message), true);
     }
 
     protected String applyCrypt(String message, boolean encrypt){

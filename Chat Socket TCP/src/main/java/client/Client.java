@@ -69,7 +69,7 @@ public class Client {
                     out.println(userInput);
                     firstMessage = false;
                 } else {
-                    out.println(crypt.encrypt(Utils.cleanString(userInput)));
+                    out.println(crypt.encrypt(userInput));
                 }
             }
 

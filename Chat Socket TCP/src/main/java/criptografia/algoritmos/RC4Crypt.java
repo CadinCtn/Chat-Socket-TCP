@@ -56,8 +56,8 @@ public class RC4Crypt implements Crypt {
     }
 
     public static void main(String[] args) {
-        Crypt crypt = new RC4Crypt("chave123");
-        String mensagem = "Testando RC4 no chat, com acentuação, espaços e tudo!";
+        Crypt crypt = new RC4Crypt("D&Ot)[YW");
+        String mensagem = "Cybersecurity melhor disciplina do curso.";
         String cifrado = crypt.encrypt(mensagem);
         System.out.println("Cifrado (Base64): " + cifrado);
         System.out.println("Decifrado: " + crypt.decrypt(cifrado));

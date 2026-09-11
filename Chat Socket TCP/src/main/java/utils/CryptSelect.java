@@ -15,6 +15,7 @@ public class CryptSelect {
         System.out.println("3 - Cifra monoalfabética");
         System.out.println("4 - Cifra Playfair");
         System.out.println("5 - Cifra de Vigenère");
+        System.out.println("6 - Cifra RC4");
         System.out.print("Modo: ");
 
         int selectedCrypt;
@@ -88,6 +89,18 @@ public class CryptSelect {
                 }
 
                 return new VigenereCrypt(vigenereKey);
+            case 6:
+                System.out.println("Cifra RC4 selecionada.");
+                System.out.print("Chave: ");
+
+                String rc4Key = scanner.nextLine();
+
+                if (rc4Key.isEmpty()) {
+                    System.out.println("A chave não pode ser vazia.");
+                    return SelectCryptography(scanner);
+                }
+
+                return new RC4Crypt(rc4Key);
 
             default:
                 System.out.println("Opção inválida.");
