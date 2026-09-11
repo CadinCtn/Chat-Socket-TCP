@@ -40,6 +40,11 @@ public class RC4Crypt implements Crypt {
     public String encrypt(String message) {
         byte[] plain = message.getBytes(StandardCharsets.UTF_8);
         byte[] cipher = rc4(plain);
+        for (byte b : cipher) {
+            // Printando o byte antes de converter para base64 fazendo AND para manter dentro de 0-255
+            System.out.print((b & 0xFF) + " ");
+        }
+        System.out.println();
         // Base64 evita que bytes crus (ex: 0x0A) quebrem o protocolo
         return Base64.getEncoder().encodeToString(cipher);
     }
