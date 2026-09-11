@@ -13,9 +13,6 @@ public class RC4Crypt implements Crypt {
         this.key = chave.getBytes(StandardCharsets.UTF_8);
     }
 
-    // KSA + PRGA. O estado (S, i, j) é sempre reiniciado a cada chamada,
-    // para que cada mensagem seja cifrada/decifrada de forma independente
-    // (mesmo padrão que VigenereCrypt.applyCrypt já usa, resetando indexCifra).
     private byte[] rc4(byte[] data) {
         int[] S = new int[256];
         for (int i = 0; i < 256; i++) S[i] = i;
@@ -44,14 +41,13 @@ public class RC4Crypt implements Crypt {
         byte[] plain = message.getBytes(StandardCharsets.UTF_8);
         byte[] cipher = rc4(plain);
         // Base64 evita que bytes crus (ex: 0x0A) quebrem o protocolo
-        // baseado em linhas (println / readLine)
         return Base64.getEncoder().encodeToString(cipher);
     }
 
     @Override
     public String decrypt(String message) {
         byte[] cipher = Base64.getDecoder().decode(message);
-        byte[] plain = rc4(cipher); // RC4 é simétrico: mesma função cifra e decifra
+        byte[] plain = rc4(cipher);
         return new String(plain, StandardCharsets.UTF_8);
     }
 
