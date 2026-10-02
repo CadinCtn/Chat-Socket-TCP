@@ -125,7 +125,7 @@ public class DesEngine {
 
     private final long[] subkeys = new long[16];
 
-    DesEngine(byte[] key8) {
+    public DesEngine(byte[] key8) {
         long keyBits = bytesToLong(key8);
         long permuted = permute(keyBits, PC1, 64);
         int c = (int) ((permuted >>> 28) & 0x0FFFFFFF);
