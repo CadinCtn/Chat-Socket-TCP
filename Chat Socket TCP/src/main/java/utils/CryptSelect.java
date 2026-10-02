@@ -2,6 +2,7 @@ package utils;
 
 import criptografia.Crypt;
 import criptografia.algoritmos.*;
+import criptografia.algoritmos.des.DesCrypt;
 
 import java.util.Scanner;
 
