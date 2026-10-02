@@ -16,7 +16,7 @@ public class CryptSelect {
         System.out.println("4 - Cifra Playfair");
         System.out.println("5 - Cifra de Vigenère");
         System.out.println("6 - Cifra RC4");
-        System.out.println("7 - Cifra 3DES (Triple DES)");
+        System.out.println("7 - Cifra DES");
         System.out.print("Modo: ");
 
         int selectedCrypt;
@@ -104,17 +104,17 @@ public class CryptSelect {
                 return new RC4Crypt(rc4Key);
 
             case 7:
-                System.out.println("Cifra 3DES (Triple DES) selecionada.");
+                System.out.println("Cifra DES selecionada.");
                 System.out.print("Chave: ");
 
-                String tripleDesKey = scanner.nextLine();
+                String desKey = scanner.nextLine();
 
-                if (tripleDesKey.isEmpty()) {
+                if (desKey.isEmpty()) {
                     System.out.println("A chave não pode ser vazia.");
                     return SelectCryptography(scanner);
                 }
 
-                return new TripleDesCrypt(tripleDesKey);
+                return new DesCrypt(desKey);
 
             default:
                 System.out.println("Opção inválida.");

@@ -10,30 +10,24 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
- * 3DES (Triple DES / DESede) em modo CBC com padding PKCS5.
+ * DES (Data Encryption Standard) em modo CBC com padding PKCS5.
  * Segue o mesmo contrato de {@link RC4Crypt}: implementa {@link Crypt} diretamente
  * (não usa {@code AbstractCrypt}, que é alfabeto clássico A–Z) e envia Base64
  * para não quebrar o protocolo TCP baseado em linhas.
  *
- * <p>Operação EDE com três chaves de 64 bits (56 efetivos + paridade):
- * cifra = E<sub>K3</sub>(D<sub>K2</sub>(E<sub>K1</sub>(P))),
- * decifra = D<sub>K1</sub>(E<sub>K2</sub>(D<sub>K3</sub>(C))).
+ * <p>Uma chave de 64 bits (56 efetivos + paridade), 16 rodadas Feistel (FIPS 46-3).
  */
-public class TripleDesCrypt implements Crypt {
+public class DesCrypt implements Crypt {
 
     private static final int BLOCK_SIZE = 8;
-    private static final int KEY_MATERIAL_SIZE = 24;
+    private static final int KEY_MATERIAL_SIZE = 8;
 
-    private final DesEngine k1;
-    private final DesEngine k2;
-    private final DesEngine k3;
+    private final DesEngine des;
     private final SecureRandom random = new SecureRandom();
 
-    public TripleDesCrypt(String chave) {
+    public DesCrypt(String chave) {
         byte[] material = deriveKeyMaterial(chave);
-        this.k1 = new DesEngine(Arrays.copyOfRange(material, 0, 8));
-        this.k2 = new DesEngine(Arrays.copyOfRange(material, 8, 16));
-        this.k3 = new DesEngine(Arrays.copyOfRange(material, 16, 24));
+        this.des = new DesEngine(material);
         Arrays.fill(material, (byte) 0);
     }
 
@@ -50,7 +44,7 @@ public class TripleDesCrypt implements Crypt {
         for (int offset = 0; offset < plain.length; offset += BLOCK_SIZE) {
             System.arraycopy(plain, offset, block, 0, BLOCK_SIZE);
             xorInPlace(block, previous);
-            byte[] encrypted = tripleEncrypt(block);
+            byte[] encrypted = des.encrypt(block);
             System.arraycopy(encrypted, 0, cipher, offset, BLOCK_SIZE);
             previous = encrypted;
         }
@@ -65,7 +59,7 @@ public class TripleDesCrypt implements Crypt {
     public String decrypt(String message) {
         byte[] payload = Base64.getDecoder().decode(message);
         if (payload.length < BLOCK_SIZE * 2 || payload.length % BLOCK_SIZE != 0) {
-            throw new IllegalArgumentException("Ciphertext 3DES inválido.");
+            throw new IllegalArgumentException("Ciphertext DES inválido.");
         }
 
         byte[] iv = Arrays.copyOfRange(payload, 0, BLOCK_SIZE);
@@ -76,21 +70,13 @@ public class TripleDesCrypt implements Crypt {
 
         for (int offset = 0; offset < cipher.length; offset += BLOCK_SIZE) {
             System.arraycopy(cipher, offset, block, 0, BLOCK_SIZE);
-            byte[] decrypted = tripleDecrypt(block);
+            byte[] decrypted = des.decrypt(block);
             xorInPlace(decrypted, previous);
             System.arraycopy(decrypted, 0, plain, offset, BLOCK_SIZE);
             previous = Arrays.copyOfRange(cipher, offset, offset + BLOCK_SIZE);
         }
 
         return new String(pkcs5Unpad(plain), StandardCharsets.UTF_8);
-    }
-
-    private byte[] tripleEncrypt(byte[] block) {
-        return k3.encrypt(k2.decrypt(k1.encrypt(block)));
-    }
-
-    private byte[] tripleDecrypt(byte[] block) {
-        return k1.decrypt(k2.encrypt(k3.decrypt(block)));
     }
 
     private static byte[] deriveKeyMaterial(String chave) {
@@ -340,12 +326,12 @@ public class TripleDesCrypt implements Crypt {
     }
 
     public static void main(String[] args) {
-        DesEngine des = new DesEngine(hexToBytes("133457799BBCDFF1"));
-        String desCipher = bytesToHex(des.encrypt(hexToBytes("0123456789ABCDEF")));
+        DesEngine engine = new DesEngine(hexToBytes("133457799BBCDFF1"));
+        String desCipher = bytesToHex(engine.encrypt(hexToBytes("0123456789ABCDEF")));
         System.out.println("DES FIPS: " + desCipher
                 + ("85E813540F0AB405".equalsIgnoreCase(desCipher) ? " OK" : " FAIL"));
 
-        Crypt crypt = new TripleDesCrypt("chave-secreta-3des");
+        Crypt crypt = new DesCrypt("chave-secreta-des");
         String mensagem = "Cybersecurity melhor disciplina do curso.";
         String cifrado = crypt.encrypt(mensagem);
         System.out.println("Cifrado (Base64): " + cifrado);
