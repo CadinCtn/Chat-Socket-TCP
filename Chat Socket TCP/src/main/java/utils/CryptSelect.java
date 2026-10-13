@@ -106,8 +106,20 @@ public class CryptSelect {
 
             case 7:
                 System.out.println("Cifra DES selecionada.");
-                System.out.print("Chave: ");
+                System.out.println("1 - Modo normal do chat (CBC + Base64)");
+                System.out.println("2 - Modo de validação dos testes (blocos DES + HEX)");
+                System.out.print("Modo DES: ");
 
+                String modo = scanner.nextLine().trim();
+                if (!modo.equals("1") && !modo.equals("2")) {
+                    System.out.println("Modo DES inválido.");
+                    return SelectCryptography(scanner);
+                }
+
+                boolean modoValidacao = modo.equals("2");
+                System.out.print(modoValidacao
+                        ? "Chave ASCII (exatamente 8 caracteres): "
+                        : "Chave: ");
                 String desKey = scanner.nextLine();
 
                 if (desKey.isEmpty()) {
@@ -115,7 +127,15 @@ public class CryptSelect {
                     return SelectCryptography(scanner);
                 }
 
-                return new DesCrypt(desKey);
+                try {
+                    if (modoValidacao) {
+                        System.out.println("Modo de validação ativo: mensagens devem ter múltiplos de 8 bytes ASCII.");
+                    }
+                    return new DesCrypt(desKey, modoValidacao);
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                    return SelectCryptography(scanner);
+                }
 
             default:
                 System.out.println("Opção inválida.");

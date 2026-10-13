@@ -8,7 +8,7 @@ import criptografia.Crypt;
 import utils.*;
 
 public class Client {
-    private static final String SERVER_ADDRESS = "26.232.54.30";
+    private static final String SERVER_ADDRESS = "10.164.20.143";
     private static final int SERVER_PORT = 12345;
 
     public static void main(String[] args) {
@@ -69,7 +69,13 @@ public class Client {
                     out.println(userInput);
                     firstMessage = false;
                 } else {
-                    out.println(crypt.encrypt(userInput));
+                    try {
+                        out.println(crypt.encrypt(userInput));
+                    } catch (IllegalArgumentException e) {
+                        // No modo de validação DES, mensagens precisam formar
+                        // blocos completos de 8 bytes ASCII. Mantém o cliente ativo.
+                        System.out.println("Mensagem não enviada: " + e.getMessage());
+                    }
                 }
             }
 

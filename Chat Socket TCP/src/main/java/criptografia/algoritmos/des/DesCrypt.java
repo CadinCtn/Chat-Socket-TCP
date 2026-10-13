@@ -10,14 +10,6 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 
-/**
- * DES (Data Encryption Standard) em modo CBC com padding PKCS5.
- * Segue o mesmo contrato de {@link RC4Crypt}: implementa {@link Crypt} diretamente
- * (não usa {@code AbstractCrypt}, que é alfabeto clássico A–Z) e envia Base64
- * para não quebrar o protocolo TCP baseado em linhas.
- *
- * <p>Uma chave de 64 bits (56 efetivos + paridade), 16 rodadas Feistel (FIPS 46-3).
- */
 public class DesCrypt implements Crypt {
 
     private final int BLOCK_SIZE = 8;
@@ -25,15 +17,39 @@ public class DesCrypt implements Crypt {
 
     private final DesEngine des;
     private final SecureRandom random = new SecureRandom();
+    private final boolean modoValidacao;
+    private byte[] validationKeyBytes;
 
     public DesCrypt(String chave) {
-        byte[] material = deriveKeyMaterial(chave);
+        this(chave, false);
+    }
+
+    public DesCrypt(String chave, boolean modoValidacao) {
+        this.modoValidacao = modoValidacao;
+        byte[] material;
+
+        if (modoValidacao) {
+            material = chave.getBytes(StandardCharsets.US_ASCII);
+            if (material.length != KEY_MATERIAL_SIZE
+                    || !chave.equals(new String(material, StandardCharsets.US_ASCII))) {
+                throw new IllegalArgumentException(
+                        "No modo de validação, a chave deve conter exatamente 8 caracteres ASCII.");
+            }
+        } else {
+            material = deriveKeyMaterial(chave);
+        }
+
         this.des = new DesEngine(material);
+        this.validationKeyBytes = modoValidacao ? material.clone() : null;
         Arrays.fill(material, (byte) 0);
     }
 
     @Override
     public String encrypt(String message) {
+        if (modoValidacao) {
+            return encryptBlocosParaValidacao(message);
+        }
+
         byte[] plain = pkcs5Pad(message.getBytes(StandardCharsets.UTF_8));
         byte[] iv = new byte[BLOCK_SIZE];
         random.nextBytes(iv);
@@ -58,6 +74,10 @@ public class DesCrypt implements Crypt {
 
     @Override
     public String decrypt(String message) {
+        if (modoValidacao) {
+            return decryptBlocosHex(message);
+        }
+
         byte[] payload = Base64.getDecoder().decode(message);
         if (payload.length < BLOCK_SIZE * 2 || payload.length % BLOCK_SIZE != 0) {
             throw new IllegalArgumentException("Ciphertext DES inválido.");
@@ -78,6 +98,60 @@ public class DesCrypt implements Crypt {
         }
 
         return new String(pkcs5Unpad(plain), StandardCharsets.UTF_8);
+    }
+
+    private String encryptBlocosParaValidacao(String message) {
+        byte[] plain = message.getBytes(StandardCharsets.US_ASCII);
+        if (plain.length == 0 || !message.equals(new String(plain, StandardCharsets.US_ASCII))) {
+            throw new IllegalArgumentException("A mensagem deve ser ASCII e não pode ser vazia.");
+        }
+        if (plain.length % BLOCK_SIZE != 0) {
+            throw new IllegalArgumentException(
+                    "No modo de validação, a mensagem deve ter tamanho múltiplo de 8 bytes. " +
+                    "Recebidos: " + plain.length + " bytes.");
+        }
+
+        System.out.println("\n=== VALIDAÇÃO DES (blocos independentes) ===");
+        System.out.println("Mensagem ASCII: [" + message + "]");
+        System.out.println("Mensagem HEX: " + bytesToHex(plain));
+        System.out.println("Chave HEX: " + bytesToHex(getValidationKeyBytes()));
+
+        byte[] cipher = new byte[plain.length];
+        for (int offset = 0, numeroBloco = 1; offset < plain.length;
+             offset += BLOCK_SIZE, numeroBloco++) {
+            byte[] block = Arrays.copyOfRange(plain, offset, offset + BLOCK_SIZE);
+            byte[] encrypted = des.encrypt(block);
+            System.arraycopy(encrypted, 0, cipher, offset, BLOCK_SIZE);
+            System.out.println("\nBloco " + numeroBloco + " ASCII: [" +
+                    new String(block, StandardCharsets.US_ASCII) + "]");
+            System.out.println("Message (HEX): " + bytesToHex(block));
+            System.out.println("Cifrado (HEX): " + bytesToHex(encrypted));
+        }
+        String result = bytesToHex(cipher);
+        System.out.println("Resultado completo (HEX): " + result);
+        System.out.println("=== FIM DA VALIDAÇÃO DES ===\n");
+        return result;
+    }
+
+    private byte[] getValidationKeyBytes() {
+        // O agendamento de chaves DES não permite recuperar a chave original.
+        // A representação é guardada separadamente apenas para exibição didática.
+        return validationKeyBytes;
+    }
+
+    private String decryptBlocosHex(String message) {
+        byte[] cipher = hexToBytes(message);
+        if (cipher.length == 0 || cipher.length % BLOCK_SIZE != 0) {
+            throw new IllegalArgumentException(
+                    "No modo de validação, o texto cifrado HEX deve conter blocos completos de 16 dígitos.");
+        }
+        byte[] plain = new byte[cipher.length];
+        for (int offset = 0; offset < cipher.length; offset += BLOCK_SIZE) {
+            byte[] block = Arrays.copyOfRange(cipher, offset, offset + BLOCK_SIZE);
+            byte[] decrypted = des.decrypt(block);
+            System.arraycopy(decrypted, 0, plain, offset, BLOCK_SIZE);
+        }
+        return new String(plain, StandardCharsets.US_ASCII);
     }
 
     private byte[] deriveKeyMaterial(String chave) {
