@@ -2,6 +2,7 @@ package utils;
 
 import criptografia.Crypt;
 import criptografia.algoritmos.*;
+import criptografia.algoritmos.aes.AesCrypt;
 import criptografia.algoritmos.des.DesCrypt;
 
 import java.util.Scanner;
@@ -18,6 +19,7 @@ public class CryptSelect {
         System.out.println("5 - Cifra de Vigenère");
         System.out.println("6 - Cifra RC4");
         System.out.println("7 - Cifra DES");
+        System.out.println("8 - Cifra AES");
         System.out.print("Modo: ");
 
         int selectedCrypt;
@@ -132,6 +134,39 @@ public class CryptSelect {
                         System.out.println("Modo de validação ativo: mensagens devem ter múltiplos de 8 bytes ASCII.");
                     }
                     return new DesCrypt(desKey, modoValidacao);
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                    return SelectCryptography(scanner);
+                }
+
+            case 8:
+                System.out.println("Cifra AES selecionada.");
+                System.out.println("1 - Modo normal do chat (CBC + Base64)");
+                System.out.println("2 - Modo de validação dos testes (blocos AES + HEX)");
+                System.out.print("Modo AES: ");
+
+                String modoAes = scanner.nextLine().trim();
+                if (!modoAes.equals("1") && !modoAes.equals("2")) {
+                    System.out.println("Modo AES inválido.");
+                    return SelectCryptography(scanner);
+                }
+
+                boolean validacaoAes = modoAes.equals("2");
+                System.out.print(validacaoAes
+                        ? "Chave ASCII (exatamente 16 caracteres): "
+                        : "Chave: ");
+                String aesKey = scanner.nextLine();
+
+                if (aesKey.isEmpty()) {
+                    System.out.println("A chave não pode ser vazia.");
+                    return SelectCryptography(scanner);
+                }
+
+                try {
+                    if (validacaoAes) {
+                        System.out.println("Modo de validação ativo: mensagens devem ter múltiplos de 16 bytes ASCII.");
+                    }
+                    return new AesCrypt(aesKey, validacaoAes);
                 } catch (IllegalArgumentException e) {
                     System.out.println(e.getMessage());
                     return SelectCryptography(scanner);
