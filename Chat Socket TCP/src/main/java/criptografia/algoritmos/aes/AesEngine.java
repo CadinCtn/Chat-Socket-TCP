@@ -1,15 +1,13 @@
 package criptografia.algoritmos.aes;
 
-/**
- * AES de 128 bits de bloco (FIPS-197). Aceita chaves de 128, 192 ou 256 bits
- * (10, 12 ou 14 rodadas).
- *
- * Assim como o DesEngine, esta classe só sabe cifrar/decifrar UM bloco.
- * Modo de operação (CBC), padding e Base64 ficam na AesCrypt.
- *
- * Organização do estado: state[linha + 4 * coluna], ou seja, os 16 bytes do
- * bloco preenchem as colunas da matriz 4x4 de cima para baixo (como na spec).
- */
+/*
+AES de 128 bits de bloco
+Aceita chaves de 128, 192 ou 256 bits (10, 12 ou 14 rodadas).
+Decifra um bloco de 16 bytes de cada vez.
+Organização do estado: state[linha + 4 * coluna]
+Os 16 bytes do bloco preenchem as colunas da matriz 4x4 de cima para baixo.
+*/
+
 public class AesEngine {
 
     public static final int BLOCK_SIZE = 16;
@@ -17,7 +15,7 @@ public class AesEngine {
     private static final int[] SBOX = new int[256];
     private static final int[] INV_SBOX = new int[256];
 
-    // A S-box não é digitada: é gerada a partir da definição matemática
+    // S-box gerada a partir da definição matemática
     // (inverso multiplicativo em GF(2^8) + transformação afim).
     static {
         for (int i = 0; i < 256; i++) {
@@ -29,14 +27,15 @@ public class AesEngine {
     }
 
     private final int rounds;
-    private final int[] roundKey; // 16 * (rounds + 1) bytes, um byte por posição
+    private final int[] roundKey; // Guarda 16 bytes de chave para cada rodada, incluindo a inicial.
 
+    // Expande uma chave AES válida nas chaves usadas em cada rodada.
     public AesEngine(byte[] key) {
         if (key.length != 16 && key.length != 24 && key.length != 32) {
             throw new IllegalArgumentException("Chave AES deve ter 16, 24 ou 32 bytes.");
         }
-        int nk = key.length / 4;          // palavras de 32 bits na chave
-        this.rounds = nk + 6;             // 10, 12 ou 14
+        int nk = key.length / 4;          // Número de palavras de 4 bytes na chave.
+        this.rounds = nk + 6;             // Define 10, 12 ou 14 rodadas conforme o tamanho da chave.
         int totalWords = 4 * (rounds + 1);
         this.roundKey = new int[totalWords * 4];
 
@@ -51,7 +50,7 @@ public class AesEngine {
                 temp[j] = roundKey[(i - 1) * 4 + j];
             }
             if (i % nk == 0) {
-                // RotWord + SubWord + Rcon
+                // Gira a palavra, substitui seus bytes pela S-box e aplica a constante da rodada.
                 int t0 = temp[0];
                 temp[0] = SBOX[temp[1]] ^ rcon;
                 temp[1] = SBOX[temp[2]];
@@ -59,7 +58,7 @@ public class AesEngine {
                 temp[3] = SBOX[t0];
                 rcon = xtime(rcon);
             } else if (nk > 6 && i % nk == 4) {
-                // só no AES-256: SubWord extra
+                // No AES-256, aplica uma substituição extra pela S-box nesta palavra.
                 for (int j = 0; j < 4; j++) {
                     temp[j] = SBOX[temp[j]];
                 }
@@ -70,6 +69,7 @@ public class AesEngine {
         }
     }
 
+    // Cifra um bloco de 16 bytes aplicando as rodadas do AES.
     byte[] encrypt(byte[] block) {
         int[] state = toState(block);
 
@@ -87,6 +87,7 @@ public class AesEngine {
         return fromState(state);
     }
 
+    // Decifra um bloco de 16 bytes aplicando as operações inversas do AES.
     byte[] decrypt(byte[] block) {
         int[] state = toState(block);
 
@@ -106,19 +107,21 @@ public class AesEngine {
 
     // ---------------------------------------------------------------- rodada
 
+    // Combina o estado com a chave da rodada usando XOR.
     private void addRoundKey(int[] state, int round) {
         for (int i = 0; i < 16; i++) {
             state[i] ^= roundKey[round * 16 + i];
         }
     }
 
+    // Substitui cada byte do estado pela entrada correspondente na tabela.
     private static void subBytes(int[] state, int[] box) {
         for (int i = 0; i < 16; i++) {
             state[i] = box[state[i]];
         }
     }
 
-    /** Linha r do estado é rotacionada r posições para a esquerda. */
+    // Rotaciona cada linha do estado para a esquerda conforme seu índice.
     private static void shiftRows(int[] state) {
         int[] old = state.clone();
         for (int r = 1; r < 4; r++) {
@@ -128,6 +131,7 @@ public class AesEngine {
         }
     }
 
+    // Desfaz as rotações aplicadas às linhas do estado.
     private static void invShiftRows(int[] state) {
         int[] old = state.clone();
         for (int r = 1; r < 4; r++) {
@@ -137,7 +141,7 @@ public class AesEngine {
         }
     }
 
-    /** Multiplica cada coluna pela matriz fixa de MixColumns (ou pela inversa). */
+    // Mistura os bytes de cada coluna usando a transformação direta ou inversa.
     private static void mixColumns(int[] state, boolean inverse) {
         int m0 = inverse ? 14 : 2;
         int m1 = inverse ? 11 : 3;
@@ -159,12 +163,13 @@ public class AesEngine {
 
     // ------------------------------------------------------- aritmética GF(2^8)
 
-    /** Multiplica por x (ou seja, por 2) em GF(2^8), polinômio x^8+x^4+x^3+x+1. */
+    // Multiplica por 2 em GF(2^8), reduzindo pelo polinômio do AES quando necessário.
     private static int xtime(int a) {
         int r = (a << 1) & 0xFF;
         return (a & 0x80) != 0 ? r ^ 0x1B : r;
     }
 
+    // Multiplica dois valores no campo finito GF(2^8).
     private static int gmul(int a, int b) {
         int result = 0;
         while (b != 0) {
@@ -177,6 +182,7 @@ public class AesEngine {
         return result;
     }
 
+    // Encontra o inverso multiplicativo em GF(2^8); zero permanece zero na S-box.
     private static int inverso(int a) {
         if (a == 0) return 0;
         for (int x = 1; x < 256; x++) {
@@ -185,12 +191,14 @@ public class AesEngine {
         throw new IllegalStateException("Sem inverso em GF(2^8)");
     }
 
+    // Rotaciona os oito bits para a esquerda sem descartar os bits deslocados.
     private static int rotl8(int value, int shift) {
         return ((value << shift) | (value >>> (8 - shift))) & 0xFF;
     }
 
     // ------------------------------------------------------------ conversões
 
+    // Valida o bloco e converte seus bytes para o estado interno do AES.
     private static int[] toState(byte[] block) {
         if (block.length != BLOCK_SIZE) {
             throw new IllegalArgumentException("Bloco AES deve ter 16 bytes.");
@@ -202,6 +210,7 @@ public class AesEngine {
         return state;
     }
 
+    // Converte o estado interno do AES em um bloco de 16 bytes.
     private static byte[] fromState(int[] state) {
         byte[] out = new byte[16];
         for (int i = 0; i < 16; i++) {

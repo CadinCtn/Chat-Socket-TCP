@@ -20,10 +20,12 @@ public class AesCrypt implements Crypt {
     private final boolean modoValidacao;
     private final byte[] validationKeyBytes;
 
+    // Cria o wrapper AES no modo normal, com CBC.
     public AesCrypt(String chave) {
         this(chave, false);
     }
 
+    // Valida ou deriva a chave e inicializa o motor AES.
     public AesCrypt(String chave, boolean modoValidacao) {
         this.modoValidacao = modoValidacao;
         byte[] material;
@@ -46,6 +48,7 @@ public class AesCrypt implements Crypt {
     }
 
     @Override
+    // Aplica padding, cifra em CBC e codifica o IV e o ciphertext em Base64.
     public String encrypt(String message) {
         if (modoValidacao) {
             return encryptBlocosParaValidacao(message);
@@ -75,6 +78,7 @@ public class AesCrypt implements Crypt {
     }
 
     @Override
+    // Decodifica o payload, decifra em CBC, remove o padding e retorna UTF-8.
     public String decrypt(String message) {
         if (modoValidacao) {
             return decryptBlocosHex(message);
@@ -104,6 +108,7 @@ public class AesCrypt implements Crypt {
 
     // ---------------------------------------------------- modo de validação
 
+    // Cifra blocos ASCII independentes e retorna o resultado em hexadecimal.
     private String encryptBlocosParaValidacao(String message) {
         byte[] plain = message.getBytes(StandardCharsets.US_ASCII);
         if (plain.length == 0 || !message.equals(new String(plain, StandardCharsets.US_ASCII))) {
@@ -137,6 +142,7 @@ public class AesCrypt implements Crypt {
         return result;
     }
 
+    // Decifra blocos hexadecimais independentes e retorna o texto em ASCII.
     private String decryptBlocosHex(String message) {
         byte[] cipher = hexToBytes(message);
         if (cipher.length == 0 || cipher.length % BLOCK_SIZE != 0) {
@@ -155,7 +161,7 @@ public class AesCrypt implements Crypt {
 
     // --------------------------------------------------------------- helpers
 
-    /** Deriva a chave AES a partir da senha digitada (SHA-256 truncado). */
+    // Deriva 16 bytes de chave usando os primeiros bytes do hash SHA-256 da senha.
     private byte[] deriveKeyMaterial(String chave) {
         try {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
@@ -166,7 +172,7 @@ public class AesCrypt implements Crypt {
         }
     }
 
-    // PKCS#7 (o "PKCS5" do DES é o mesmo esquema, só que com bloco de 8)
+    // Acrescenta padding PKCS#7 para completar o último bloco AES.
     private byte[] pkcs7Pad(byte[] data) {
         int pad = BLOCK_SIZE - (data.length % BLOCK_SIZE);
         byte[] padded = Arrays.copyOf(data, data.length + pad);
@@ -174,6 +180,7 @@ public class AesCrypt implements Crypt {
         return padded;
     }
 
+    // Valida e remove o padding PKCS#7 dos dados decifrados.
     private byte[] pkcs7Unpad(byte[] data) {
         if (data.length == 0 || data.length % BLOCK_SIZE != 0) {
             throw new IllegalArgumentException("Padding PKCS7 inválido.");
@@ -190,12 +197,14 @@ public class AesCrypt implements Crypt {
         return Arrays.copyOf(data, data.length - pad);
     }
 
+    // Aplica XOR entre dois blocos, armazenando o resultado no primeiro.
     private void xorInPlace(byte[] block, byte[] other) {
         for (int i = 0; i < BLOCK_SIZE; i++) {
             block[i] ^= other[i];
         }
     }
 
+    // Executa vetores oficiais do AES e demonstra o fluxo CBC do wrapper.
     public static void main(String[] args) {
         // Vetores de teste oficiais do FIPS-197 (apêndice C)
         String plainHex = "00112233445566778899AABBCCDDEEFF";
@@ -220,6 +229,7 @@ public class AesCrypt implements Crypt {
         System.out.println("Roundtrip vazio: [" + crypt.decrypt(crypt.encrypt("")) + "]");
     }
 
+    // Converte uma sequência hexadecimal em bytes.
     private static byte[] hexToBytes(String hex) {
         byte[] data = new byte[hex.length() / 2];
         for (int i = 0; i < data.length; i++) {
@@ -228,6 +238,7 @@ public class AesCrypt implements Crypt {
         return data;
     }
 
+    // Converte bytes em uma sequência hexadecimal maiúscula.
     private static String bytesToHex(byte[] data) {
         StringBuilder sb = new StringBuilder(data.length * 2);
         for (byte b : data) {
